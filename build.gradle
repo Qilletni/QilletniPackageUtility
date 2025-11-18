@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'maven-publish'
+    id 'com.vanniktech.maven.publish' version '0.35.0'
 }
 
 group = 'dev.qilletni.pkgutil'
@@ -11,42 +12,45 @@ repositories {
     mavenLocal()
 
     maven {
-        url = "https://maven.pkg.github.com/rubbaboy/Qilletni"
-        credentials {
-            username = System.getenv("GITHUB_ACTOR")
-            password = System.getenv("GITHUB_TOKEN")
-        }
+        url = 'https://central.sonatype.com/repository/maven-snapshots/'
     }
 }
 
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+    
+    implementation 'com.google.code.gson:gson:2.10.1'
 
     implementation 'dev.qilletni.api:qilletni-api:1.0.0-SNAPSHOT'
 }
 
-java {
-    withSourcesJar()
-    sourceCompatibility = '22'
-    targetCompatibility = '22'
-}
+mavenPublishing {
+    coordinates(group, "qilletni-pkgutil", version)
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-        }
-    }
-
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = "https://maven.pkg.github.com/rubbaboy/QilletniPackageUtility"
-            credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
+    pom {
+        name = "Qilletni Package Util"
+        description = "Shared utilities for interacting with Qilletni Packages"
+        inceptionYear = "2025"
+        url = "https://github.com/Qilletni/QilletniPackageUtility/"
+        licenses {
+            license {
+                name = "MIT"
+                url = "https://mit-license.org/"
+                distribution = "https://mit-license.org/"
             }
+        }
+        developers {
+            developer {
+                id = "RubbaBoy"
+                name = "Adam Yarris"
+                url = "https://github.com/RubbaBoy/"
+            }
+        }
+        scm {
+            url = "https://github.com/Qilletni/QilletniPackageUtility"
+            connection = "scm:git:git://github.com/Qilletni/QilletniPackageUtility.git"
+            developerConnection = "scm:git:ssh://git@github.com/Qilletni/QilletniPackageUtility.git"
         }
     }
 }
