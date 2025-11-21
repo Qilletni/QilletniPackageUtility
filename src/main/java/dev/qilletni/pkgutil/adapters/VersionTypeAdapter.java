@@ -26,7 +26,8 @@ public class VersionTypeAdapter extends TypeAdapter<Version> {
                 '.' +
                 value.minor() +
                 '.' +
-                value.patch();
+                value.patch() +
+                (value.isSnapshot() ? "-SNAPSHOT" : "");
 
         out.value(versionString);
     }
