@@ -1,11 +1,10 @@
 name: Publish SNAPSHOT
 
-# This workflow publishes SNAPSHOT versions to Maven Central on every push to master/develop.
-# The version in build.gradle must end with "-SNAPSHOT" for this workflow to succeed.
-
 on:
   push:
     branches: [ master, develop ]
+    tags-ignore:
+      - 'v*.*.*'
 
 jobs:
   publish-snapshot:

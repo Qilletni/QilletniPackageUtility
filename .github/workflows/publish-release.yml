@@ -1,21 +1,5 @@
 name: Publish Release
 
-# This workflow publishes releases to Maven Central when a version tag is pushed.
-#
-# Release Process:
-# 1. Update build.gradle version from "X.Y.Z-SNAPSHOT" to "X.Y.Z"
-# 2. Commit: git commit -am "Release X.Y.Z"
-# 3. Create tag: git tag vX.Y.Z
-# 4. Push: git push && git push --tags
-#    (This triggers the release workflow)
-# 5. Update build.gradle version to next snapshot: "X.Y.(Z+1)-SNAPSHOT"
-# 6. Commit and push: git commit -am "Prepare next development version" && git push
-#    (This triggers the snapshot workflow)
-#
-# Note: The workflow validates that:
-# - The version does not end with "-SNAPSHOT"
-# - The version in build.gradle matches the git tag (e.g., v1.0.0 → 1.0.0)
-
 on:
   push:
     tags:
