@@ -1,8 +1,25 @@
 name: Publish Release
 
+# This workflow publishes releases to Maven Central when a version tag is pushed.
+#
+# Release Process:
+# 1. Update build.gradle version from "X.Y.Z-SNAPSHOT" to "X.Y.Z"
+# 2. Commit: git commit -am "Release X.Y.Z"
+# 3. Create tag: git tag vX.Y.Z
+# 4. Push: git push && git push --tags
+#    (This triggers the release workflow)
+# 5. Update build.gradle version to next snapshot: "X.Y.(Z+1)-SNAPSHOT"
+# 6. Commit and push: git commit -am "Prepare next development version" && git push
+#    (This triggers the snapshot workflow)
+#
+# Note: The workflow validates that:
+# - The version does not end with "-SNAPSHOT"
+# - The version in build.gradle matches the git tag (e.g., v1.0.0 → 1.0.0)
+
 on:
   push:
-    branches: [ master, develop ]
+    tags:
+      - 'v*.*.*'
 
 jobs:
   publish-snapshot:
@@ -17,15 +34,29 @@ jobs:
           java-version: '22'
           distribution: 'temurin'
 
+      - uses: gradle/actions/setup-gradle@v5
+
       - name: Check version is release
         run: |
           VERSION=$(./gradlew properties -q | grep "^version:" | awk '{print $2}')
-          echo "Version: $VERSION"
+          TAG=${GITHUB_REF#refs/tags/}
+          TAG_VERSION=${TAG#v}
+
+          echo "Git tag: $TAG"
+          echo "Version from build.gradle: $VERSION"
+
           if [[ "$VERSION" =~ -SNAPSHOT$ ]]; then
             echo "Error: Version $VERSION is a SNAPSHOT. Refusing to publish."
             exit 1
           fi
-          echo "Confirmed version is not a release: $VERSION"
+
+          if [[ "$VERSION" != "$TAG_VERSION" ]]; then
+            echo "Warning: Version $VERSION does not match tag $TAG (expected $TAG_VERSION)"
+            echo "Consider updating build.gradle version to match the tag"
+            exit 1
+          fi
+
+          echo "Confirmed release version: $VERSION"
 
       - name: Publish Release
         run: ./gradlew publishToMavenCentral
@@ -34,3 +65,15 @@ jobs:
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
+
+      - name: Extract release notes
+        uses: ffurrer2/extract-release-notes@v2
+        with:
+          changelog_file: CHANGELOG.md
+          release_notes_file: RELEASE_NOTES.md
+          prerelease: false
+
+      - name: Create final release
+        run: gh release create "${{ github.ref_name }}" --notes-file RELEASE_NOTES.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

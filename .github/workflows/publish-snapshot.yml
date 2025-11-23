@@ -1,5 +1,8 @@
 name: Publish SNAPSHOT
 
+# This workflow publishes SNAPSHOT versions to Maven Central on every push to master/develop.
+# The version in build.gradle must end with "-SNAPSHOT" for this workflow to succeed.
+
 on:
   push:
     branches: [ master, develop ]
@@ -16,6 +19,8 @@ jobs:
         with:
           java-version: '22'
           distribution: 'temurin'
+
+      - uses: gradle/actions/setup-gradle@v5
 
       - name: Check version is SNAPSHOT
         run: |
