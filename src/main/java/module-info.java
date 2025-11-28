@@ -1,4 +1,4 @@
-module dev.qilletni.pkgutil {
+module qilletni.pkgutil {
     requires qilletni.api;
     requires com.google.gson;
     requires org.yaml.snakeyaml;
