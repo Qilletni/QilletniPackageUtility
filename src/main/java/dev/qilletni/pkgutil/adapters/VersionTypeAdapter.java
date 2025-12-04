@@ -22,7 +22,7 @@ public class VersionTypeAdapter extends TypeAdapter<Version> {
         }
 
         // Add version numbers
-        String versionString = String.valueOf(value.major()) +
+        var versionString = String.valueOf(value.major()) +
                 '.' +
                 value.minor() +
                 '.' +

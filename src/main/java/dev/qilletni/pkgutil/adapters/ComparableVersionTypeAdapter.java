@@ -21,7 +21,7 @@ public class ComparableVersionTypeAdapter extends TypeAdapter<ComparableVersion>
             return;
         }
 
-        StringBuilder versionString = new StringBuilder();
+        var versionString = new StringBuilder();
 
         // Add range specifier prefix if not EXACT
         char specifier = value.getRangeSpecifier().getSpecifier();
@@ -34,7 +34,8 @@ public class ComparableVersionTypeAdapter extends TypeAdapter<ComparableVersion>
                 .append('.')
                 .append(value.minor())
                 .append('.')
-                .append(value.patch());
+                .append(value.patch())
+                .append(value.isSnapshot() ? "-SNAPSHOT" : "");
 
         out.value(versionString.toString());
     }
