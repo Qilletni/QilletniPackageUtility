@@ -21,8 +21,6 @@ dependencies {
 
     implementation 'org.yaml:snakeyaml:2.2'
     implementation 'com.google.code.gson:gson:2.10.1'
-
-    implementation 'dev.qilletni.api:qilletni-api:1.0.0-SNAPSHOT'
 }
 
 mavenPublishing {
