@@ -1,0 +1,28 @@
+# Release configuration for this repository, consumed by
+# `Qilletni/Qilletni`'s `tools/release/src/release_config.ts` and the
+# reusable release workflows it exposes. See
+# `Qilletni/Qilletni`'s `tools/release/README.md` for the full schema/CLI
+# contract, and the root `RELEASE.md` for the cross-repository release
+# protocol.
+schema_version: 1
+repository: Qilletni/QilletniPackageUtility
+
+components:
+  - name: qilletni-pkgutil
+    kind: maven
+    version_file: gradle.properties
+    version_key: pkgutilVersion
+    changelog: CHANGELOG.md
+    registry_component: qilletni-pkgutil
+    artifacts:
+      - maven:
+          group: dev.qilletni.pkgutil
+          artifact: qilletni-pkgutil
+        japicmp:
+          enabled: true
+          report: build/reports/japicmp/qilletni-pkgutil.xml
+
+# japicmp policy (applied to the artifact above with `japicmp.enabled: true`):
+#   patch — reject any API change (additive or breaking)
+#   minor — reject breaking changes only; additive changes are allowed
+#   major — breaking changes are allowed only when `docs/migrations/X.Y.Z.md` exists

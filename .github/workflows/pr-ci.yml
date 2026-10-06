@@ -1,0 +1,75 @@
+name: PR CI
+
+on:
+  pull_request:
+    branches: [ master ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          java-version: '22'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - uses: gradle/actions/setup-gradle@v5
+
+      # `dependencyLocking` (see build.gradle) makes any of these tasks fail
+      # outright if the resolved dependency graph has drifted from
+      # gradle.lockfile, so a lock-file update is always an explicit,
+      # reviewable part of a PR's diff.
+      - name: Build and test
+        run: ./gradlew clean build
+
+      - name: Guard against SNAPSHOT/dynamic dependencies
+        run: ./gradlew checkNoSnapshotDependencies
+
+      - name: Generate CycloneDX SBOM
+        run: ./gradlew cyclonedxDirectBom
+
+      - name: Verify publishToMavenLocal works
+        run: ./gradlew publishToMavenLocal
+
+  validate-release-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/checkout@v7
+        with:
+          repository: Qilletni/Qilletni
+          path: .qilletni-release-tooling
+          sparse-checkout: tools/release
+          submodules: true  # tools/release submodule (Qilletni/ReleaseTooling)
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: .qilletni-release-tooling/tools/release/package-lock.json
+
+      - name: Install release tooling dependencies
+        working-directory: .qilletni-release-tooling/tools/release
+        run: npm ci
+
+      - name: Validate .qilletni/release.yml schema
+        working-directory: .qilletni-release-tooling/tools/release
+        run: node --import tsx src/cli.ts validate-release-config --config "$GITHUB_WORKSPACE/.qilletni/release.yml"
+
+  actionlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Run actionlint
+        uses: reviewdog/action-actionlint@v1
+        with:
+          fail_level: error
