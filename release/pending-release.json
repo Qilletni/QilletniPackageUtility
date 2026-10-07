@@ -1,6 +1,0 @@
-{
-  "bump": "patch",
-  "component": "qilletni-pkgutil",
-  "from_version": "1.0.1-SNAPSHOT",
-  "to_version": "1.0.1"
-}
