@@ -35,8 +35,11 @@ jobs:
       - name: Generate CycloneDX SBOM
         run: ./gradlew cyclonedxDirectBom
 
+      # PR builds have no signing secrets, and signing is required for a stable
+      # version (e.g. a release PR). Signing is still enforced by the release
+      # publish, which keeps `signAllPublications=true`.
       - name: Verify publishToMavenLocal works
-        run: ./gradlew publishToMavenLocal
+        run: ./gradlew publishToMavenLocal -PsignAllPublications=false
 
   validate-release-config:
     runs-on: ubuntu-latest
